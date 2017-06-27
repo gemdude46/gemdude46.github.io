@@ -1,0 +1,9 @@
+<title>$pad</title>
+<script src=$.js></script>
+<script src=w3+.js></script>
+<textarea style="width:95vw;height:40vh;">echo "hello, world!"</textarea><br>
+<button onclick="try{t=new $thread(document.querySelector('textarea').value);t.stdout=function(s){document.querySelector('div').appendContent(_ESC(s+'\n')).scrollToBottom()};t.run()}catch(e){alert(e);throw e}">run</button>
+<button onclick="$_THREADARR=[]">stop</button>
+Threads running: <livejs>$_THREADARR.length</livejs>
+<div style="width:95vw;height:40vh;background-color:#ccc;overflow:auto"></div>
+<button onclick="document.querySelector('div').innerHTML=''">clear

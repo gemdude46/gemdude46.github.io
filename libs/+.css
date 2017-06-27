@@ -1,0 +1,60 @@
+unimportant:hover{
+    -webkit-filter:blur(3px);
+    -moz-filter:blur(3px);
+    -o-filter:blur(3px);
+    -ms-filter:blur(3px);
+    filter:blur(3px);
+    opacity:0.3;
+}
+
+.grayscale,.greyscale,greyscale,grayscale{
+    -webkit-filter:grayscale(1);
+    -moz-filter:grayscale(1);
+    -o-filter:grayscale(1);
+    -ms-filter:grayscale(1);
+    filter:grayscale(1);
+    filter:gray;
+}
+
+.color-on-hover:hover, .colour-on-hover:hover{
+    -webkit-filter:grayscale(0);
+    -moz-filter:grayscale(0);
+    -o-filter:grayscale(0);
+    -ms-filter:grayscale(0);
+    filter:grayscale(0);
+    filter:none;
+}
+
+.circle{
+    border-radius:50%;
+}
+
+.unselectable {
+   -moz-user-select: none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+   -webkit-touch-callout: none;
+   -webkit-user-select: none;
+   -webkit-tap-highlight-color: rgba(0,0,0,0);
+   -webkit-tap-highlight-color: transparent;
+}
+
+.darken-on-hover:hover{
+    -webkit-filter:brightness(0.8);
+    -moz-filter:brightness(0.8);
+    -o-filter:brightness(0.8);
+    -ms-filter:brightness(0.8);
+    filter:brightness(0.8);
+}
+
+.lighten-on-hover:hover{
+    -webkit-filter:brightness(1.2);
+    -moz-filter:brightness(1.2);
+    -o-filter:brightness(1.2);
+    -ms-filter:brightness(1.2);
+    filter:brightness(1.2);
+}
+
+.pointer{ cursor:pointer; }

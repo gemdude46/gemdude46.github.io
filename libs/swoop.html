@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Swoop</title>
+        <script type="text/javascript" src="swoop.js"></script>
+        <style>
+            #colorcont {
+                background-color: #ddd;
+            }
+            
+            #color {
+                border: 3px solid black;
+            }
+            
+            #colorsel {
+                background: linear-gradient(90deg, #f00, #0f0, #00f, #f00);
+            }
+            
+            #sel{
+                background-color: black;
+                transition: left 1s;
+            }
+        </style>
+        <script>
+            var selpos = 30;
+            swoop.onFrame(function(){
+                document.getElementById('color').style['background-color'] = 'hsl(' + (selpos * 3.6) + ',100%,50%)';
+            });
+        </script>
+    </head>
+    <body>
+        <box swoop-left="50% - 100" swoop-width=200 swoop-top="35% - 100" swoop-height=200 id=color></box>
+        <box swoop-left=0 swoop-bottom=0 swoop-width=100% swoop-height=30% id=colorcont>
+            <box swoop-left=15% swoop-right=15% swoop-top=30% swoop-bottom=30% id=colorsel>
+                <box swoop-left="$selpos %" swoop-top="0 - 5" swoop-width=3 swoop-height="100% + 10" id=sel></box>
+            </box>
+        </box>
+    </body>
+</html>

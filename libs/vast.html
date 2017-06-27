@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vast.js demo</title>
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+        <script src="vast.js"></script>
+        <script>
+            var scene;
+            
+            function b(a) {
+                return new Big(a);
+            }
+            
+            onload = function() {
+                Vast.init(loadScene);
+            };
+            
+            function loadScene() {
+                scene = new Vast.Scene();
+                scene.runIn(document.body);
+                scene.setBackground('#00000f');
+                scene.addVastSphere(6371000,   Vast.V3D(0, 0, '-1.496e+11'), '#00c0d0');
+                scene.addVastSphere(695700000, Vast.V3D(0, 0, 0), '#ffffb0');
+                scene.setCameraPosition(Vast.V3D(0, 0, 10000000000));
+            }
+        </script>
+    </head>
+    <body>
+        Loading...
+    </body>
+</html>
