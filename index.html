@@ -4,26 +4,119 @@
         <title>Gemdude46</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
+            
+            html, body {
+                margin: 0;
+            }
+            
+            a {
+                text-decoration: none;
+            }
+            
             #title {
                 text-align: center;
                 color: #00f000;
                 font-size: 2cm;
+                font-weight: bold;
             }
             
             #title > span {
                 color: #f00000;
             }
+            
+            #subtitle {
+                text-align: center;
+            }
+            
+            #pagesel {
+                display: flex;
+                justify-content: center;
+                margin-top: 0.5em;
+            }
+            
+            #pagesel > div {
+                background-color: #fff;
+                transition: background-color 0.3s;
+                cursor: pointer;
+                padding: 0.3em 0.5em 0 0.5em;
+            }
+            
+            #pagesel > div:hover {
+                background-color: #eee;
+            }
+            
+            #bar {
+                width: 100%;
+                height: 5px;
+                background-color: #eee;
+            }
+            
+            #subbar {
+                background-color: orange;
+                height: 5px;
+                width: 0;
+            }
+            
+            .page {
+                display: none;
+            }
+            
+            .center80 {
+                width: 80%;
+                margin-left: 10%;
+            }
+            
+            .red {
+                color: #f00;
+            }
+            
+            .green {
+                color: #0f0;
+            }
+            
+            .icon {
+                height: 1em;
+            }
+            
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script>
             $(function() {
                 $('#nojs').remove();
+                
+                $('#pagesel>div').on('click', function(event) {
+                    var btn = $(this);
+                    align_bar(btn);
+                    $('.page').hide();
+                    $('#page_' + btn.attr('page')).fadeIn('fast');
+                });
+                
+                $('#pagesel>div:nth-child(1)').click();
+                
+                setTimeout(function() {
+                    $('#subbar').css({transition: 'width 0.5s, margin-left 0.5s'});
+                }, 1);
             });
+            
+            function align_bar(el) {
+                $('#subbar').css({
+                    'width': el.innerWidth() + 'px',
+                    'margin-left': el.offset().left + 'px'
+                });
+            }
         </script>
     </head>
     <body>
         <div id="title">GEMDUDE<span>46</span></div>
-        <hr>
+        <div id="subtitle">&#65293;Yay! Interwebs!&#65293;</div>
+        <div id="pagesel">
+            <div page="home">HOME</div>
+            <div page="games">GAMES</div>
+            <!--<div page="exps">WEB EXPERIMENTS</div>-->
+        </div>
+        <div id="bar">
+            <div id="subbar"></div>
+        </div>
         <p id="nojs">
             Please enable JavaScript for this site to function properly. The
             JavaScript on this page has not been minified (Sans the JQuery, and
@@ -31,5 +124,31 @@
             browser fingerprinting.) and therefore you can look through it to
             check it's not tracking you, if you wish.
         </p>
+        <div id="page_home" class="page center80">
+            <h1>Hello!</h1>
+            <h2>This is my website.</h2>
+            <p>I make computery things.</p>
+            <p>Or I would if I could stay off Reddit for more than 5 minutes.</p>
+        </div>
+        <div id="page_games" class="page center80">
+            <h1>Gravity Battle</h1>
+            <h3 class="red"><img src="images/red-phone.svg" class="icon" alt="Crossed out phone"> Not mobile compatible.</h3>
+            <h3>2 Players / One device.</h3>
+            <p>
+                Battle in the harsh environment of space by
+                using gravity to fling the moon into each other.
+                Use W&nbsp;A&nbsp;S&nbsp;D and the arrow keys to
+                move the red and blue planets and use your
+                gravitational pull to throw the moon at your
+                opponent. 
+            </p>
+            <a href="Grav-battle/">
+                <h3 class="green">
+                    <img src="images/play.svg" alt="Play" class="icon">
+                    Play
+                </h3>
+            </a>
+            <hr>
+        </div>
     </body>
 </html>
