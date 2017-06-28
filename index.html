@@ -78,24 +78,33 @@
                 height: 1em;
             }
             
+            .gamedata {
+                display: none;
+            }
+            
         </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="jquery.js"></script>
         <script>
             $(function() {
                 $('#nojs').remove();
                 
-                $('#pagesel>div').on('click', function(event) {
+                $('#pagesel > div').on('click', function(event) {
                     var btn = $(this);
                     align_bar(btn);
                     $('.page').hide();
-                    $('#page_' + btn.attr('page')).fadeIn('fast');
+                    $('#page_' + btn.attr('page')).show();
                 });
                 
-                $('#pagesel>div:nth-child(1)').click();
+                $('#pagesel > div:nth-child(1)').click();
                 
                 setTimeout(function() {
                     $('#subbar').css({transition: 'width 0.5s, margin-left 0.5s'});
                 }, 1);
+                
+                $('.game > h1').css({cursor: 'pointer'}).on('click', function(event) {
+                    var game = $(this);
+                    game.next().slideToggle();
+                });
             });
             
             function align_bar(el) {
@@ -131,23 +140,31 @@
             <p>Or I would if I could stay off Reddit for more than 5 minutes.</p>
         </div>
         <div id="page_games" class="page center80">
-            <h1>Gravity Battle</h1>
-            <h3 class="red"><img src="images/red-phone.svg" class="icon" alt="Crossed out phone"> Not mobile compatible.</h3>
-            <h3>2 Players / One device.</h3>
-            <p>
-                Battle in the harsh environment of space by
-                using gravity to fling the moon into each other.
-                Use W&nbsp;A&nbsp;S&nbsp;D and the arrow keys to
-                move the red and blue planets and use your
-                gravitational pull to throw the moon at your
-                opponent. 
-            </p>
-            <a href="Grav-battle/">
-                <h3 class="green">
-                    <img src="images/play.svg" alt="Play" class="icon">
-                    Play
-                </h3>
-            </a>
+            <div class="game">
+                <h1>
+                    Gravity Battle
+                    <img src="images/red-phone.svg" class="icon" alt="Crossed out phone">
+                </h1>
+                <div class="gamedata">
+                    <br>
+                    <h3 class="red"><img src="images/red-phone.svg" class="icon" alt="Crossed out phone"> Not mobile compatible.</h3>
+                    <h3>2 Players / One device.</h3>
+                    <p>
+                        Battle in the harsh environment of space by
+                        using gravity to fling the moon into each other.
+                        Use W&nbsp;A&nbsp;S&nbsp;D and the arrow keys to
+                        move the red and blue planets and use your
+                        gravitational pull to throw the moon at your
+                        opponent. 
+                    </p>
+                    <a href="Grav-battle/">
+                        <h3 class="green">
+                            <img src="images/play.svg" alt="Play" class="icon">
+                            Play
+                        </h3>
+                    </a>
+                </div>
+            </div>
             <hr>
         </div>
     </body>
