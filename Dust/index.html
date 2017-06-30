@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dust 0.1.0 (Pre-alpha)</title>
+        <script src="../libs/Canvas++.js"></script>
+        <script src="../libs/Interact.js"></script>
+        <script src="libperlin.js"></script>
+        <script src="libalea.js"></script>
+        <script src="constants.js"></script>
+        <script src="client.js"></script>
+        <script src="server.js"></script>
+        <script>
+            var client, server, conn;
+            
+            var timeout_lag = 1;
+            
+            onload = function() {
+                
+                var canvas = document.createElement('canvas');
+                canvas.width = innerWidth;
+                canvas.height = innerHeight;
+                
+                document.body.innerHTML = '';
+                document.body.appendChild(canvas);
+                
+                client = new DustClient(canvas);
+                server = new DustServer({
+                    name: 'Singleplayer local server',
+                    generator: 'basic'
+                });
+                conn = new DustServerConnection();
+                
+                client.send = function(msg) {
+                    setTimeout(function() {conn.onmsg(msg)}, timeout_lag)
+                };
+                
+                conn.send = function(msg) {
+                    setTimeout(function() {client.onmsg(msg)}, timeout_lag);
+                };
+                
+                server.addConnection(conn);
+                
+            };
+        </script>
+        <style>
+            html, body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        Dust requires a modern browser with HTML5 support.
+    </body>
+</html>

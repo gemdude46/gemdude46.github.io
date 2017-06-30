@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Wave Grid</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            
+            html, body {
+                margin: 0;
+                overflow: hidden;
+            }
+            
+            #em {
+                width: 1rem;
+            }
+            
+            #selected_data {
+                position: absolute;
+                background-color: white;
+                border-radius: 1rem;
+                box-shadow: 3px 3px 7px #888;
+                width: 8rem;
+                height: 3rem;
+                padding: 1rem;
+                font-size: 60%;
+                display: none;
+            }
+            
+            u {
+                color: red;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        
+        </style>
+        <script src="jquery.js"></script>
+        <script>
+            var slashgt = '/' + '>';
+            
+            var sqrt2 = Math.sqrt(2);
+            var sqrt3 = Math.sqrt(3);
+            
+            var em;
+            
+            var sel = 0;
+            
+            var CIRCLE = -3, TRIANGLE = -2, SQUARE = -1;
+            
+            var nid = 1;
+            
+            var hascanvas = 'HTMLCanvasElement' in window;
+            var hasaudio  = ('AudioContext'     in window) || ('webkitAudioContext' in window);
+            var cvs, cctx;
+            var actx;
+            
+            var click;
+            
+            function Node(type, x, y) {
+                
+                this.id = nid++;
+
+                this.type = type;
+                this.x = x;
+                this.y = y;
+                
+                this.asrc = actx.createOscillator();
+                this.gain = actx.createGain();
+                
+                this.last_select_time = -999;
+                
+                this.updateAsrc = function() {
+                    this.asrc.type = (
+                        this.type === CIRCLE   ? 'sine'     :
+                        this.type === TRIANGLE ? 'triangle' :
+                                                 'square'
+                    );
+                    
+                    this.asrc.frequency.value = Math.exp(this.x * 6.9) * 20;
+                    this.gain.gain.value = this.y;
+                };
+                
+                this.select = function() {
+                    sel = this.id;
+                    
+                    var rp = this.getRealPosition();
+                    
+                    var sdl = $('#selected_data');
+                    
+                    sdl.html(
+                        '<div>Wave: ' + this.asrc.type + '</div>' +
+                        '<div>Frequency: ' + Math.floor(this.asrc.frequency.value) + 'Hz</div>' +
+                        '<div>Volume: ' + Math.floor(100 * this.gain.gain.value) + '%</div>' +
+                        '<u onclick="nodes=nodes.filter(function(n){return(n.id!==@||n.begone());})">Delete</u>'.replace('@', this.id)
+                    ).css({
+                        left: (rp.x + (rp.x < cvs.width()  - sdl.outerWidth()  ? em : - em - sdl.outerWidth() )) + 'px',
+                        top:  (rp.y + (rp.y < cvs.height() - sdl.outerHeight() ? em : - em - sdl.outerHeight())) + 'px'
+                    }).show();
+                    
+                    if (this.last_select_time - Date.now() > -300) {
+                        this.type = (
+                            this.type === CIRCLE   ? TRIANGLE :
+                            this.type === TRIANGLE ? SQUARE   :
+                                                     CIRCLE
+                        );
+                        
+                        this.updateAsrc();
+                        
+                        this.last_select_time = -999;
+                        
+                        this.select();
+                    }
+                    
+                    this.last_select_time = Date.now();
+                };
+                
+                this.getRealPosition = function() {
+                    var xp = 0|((0.05 + this.x * 0.90) * cvs.width());
+                    var yp = 0|((0.20 + (1 - this.y) * 0.75) * cvs.height());
+                    return {x: xp, y: yp};
+                };
+                
+                this.draw = function() {
+                    
+                    var realpos = this.getRealPosition();
+                    
+                    var xp = realpos.x;
+                    var yp = realpos.y;
+                    
+                    if (this.type === CIRCLE) {
+                        cctx.fillStyle = '#f00';
+                        cctx.beginPath();
+                        cctx.arc(xp, yp, em, 0, 2 * Math.PI);
+                    }
+                    
+                    if (this.type === TRIANGLE) {
+                        cctx.fillStyle = '#0f0';
+                        cctx.beginPath();
+                        cctx.moveTo(xp, yp - em);
+                        cctx.lineTo(0|(xp - 2 * em / sqrt3), 0|(yp + em * 2 / 3));
+                        cctx.lineTo(0|(xp + 2 * em / sqrt3), 0|(yp + em * 2 / 3));
+                        cctx.closePath();
+                    }
+                    
+                    if (this.type === SQUARE) {
+                        cctx.fillStyle = '#00f';
+                        cctx.beginPath();
+                        cctx.rect(xp - em, yp - em, 2*em, 2*em);
+                    }
+                    
+                    cctx.fill();
+                    
+                    if (sel === this.id) {
+                        cctx.strokeStyle = '#ff0';
+                        cctx.lineWidth = 3;
+                        cctx.stroke();
+                    }
+                };
+                
+                this.begone = function () {
+                    this.asrc.stop();
+                    if (sel === this.id) $('#selected_data').hide();
+                };
+                
+                this.updateAsrc();
+                
+                this.asrc.connect(this.gain);
+                this.gain.connect(actx.destination);
+                
+                this.asrc.start();
+            }
+            
+            var nodes = [];
+            
+            $(function() {
+                
+                em = $('#em').width();
+                
+                click = $('audio')[0];
+                
+                if (!hascanvas && !hasaudio) {
+                    $('body').html('Your browser does not support HTML5 Canvas and the Web Audio API specification. ' +
+                                   'Please upgrade to a more modern browser.');
+                }
+                
+                if (!hascanvas && hasaudio) {
+                    $('body').html('Your browser does not support the Web Audio API specification. Please upgrade to a more modern browser.');
+                }
+                
+                if (hascanvas && !hasaudio) {
+                    $('body').html('Your browser does not support HTML5 Canvas. Please upgrade to a more modern browser.');
+                }
+                
+                if (hascanvas && hasaudio) {
+                    cvs = $('<canvas width=100 height=100 '+slashgt);
+                    $('p').remove();
+                    $('body').append(cvs);
+                    cctx = cvs[0].getContext('2d');
+                    actx = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    cvs.on('click touchstart', function(evt) {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        
+                        click.play();
+                        
+                        var x = ((evt.type === 'click') ? evt : evt.changedTouches[0]).clientX;
+                        var y = ((evt.type === 'click') ? evt : evt.changedTouches[0]).clientY;
+                        
+                        if (y > cvs.height() * 0.1 - em && y < cvs.height() * 0.1 + em) {
+                            var emofs = (x - cvs.width() / 2) / em;
+                            
+                            if (emofs > -4 && emofs < -2)
+                                sel = CIRCLE;
+                            
+                            if (emofs > -1 && emofs < 1)
+                                sel = TRIANGLE;
+                            
+                            if (emofs > 2 && emofs < 4)
+                                sel = SQUARE;
+                        }
+                        
+                        if (y > cvs.height() * 0.2 && y < cvs.height() * 0.95 && x > cvs.width() * 0.05 && x < cvs.width() * 0.95) {
+                            
+                            var f = false;
+                            
+                            for (var i = nodes.length - 1; i >= 0; i--) {
+                                var node = nodes[i];
+                                var npos = node.getRealPosition();
+                                var nx = npos.x;
+                                var ny = npos.y;
+                                
+                                if ((x-nx)*(x-nx) + (y-ny)*(y-ny) < em * em * sqrt2) {
+                                    node.select();
+                                    f = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!f && sel > 0) {
+                                sel = 0;
+                                $('#selected_data').hide()
+                            } else if (sel < 0) {
+                                nodes.push(
+                                    new Node(
+                                        sel,
+                                        (x - cvs.width() * 0.05) / (cvs.width() * 0.9),
+                                        1 - (y - cvs.height() * 0.2) / (cvs.height() * 0.75)
+                                    )
+                                );
+                            }
+                        }
+                        
+                        return false;
+                    });
+                    
+                    draw();
+                }
+            });
+            
+            function rscv() {
+                cvs.attr('width', innerWidth);
+                cvs.attr('height', innerHeight);
+            }
+            
+            function RAF(cb) {
+                if ('requestAnimationFrame' in window) requestAnimationFrame(cb);
+                else setTimeout(cb, 16);
+            }
+            
+            function draw() {
+                RAF(draw);
+                
+                rscv();
+                
+                cctx.strokeStyle = '#ff0';
+                cctx.lineWidth = 3;
+                
+                cctx.fillStyle = '#f00';
+                cctx.arc(0|(cvs.width() / 2 - 3 * em), 0|(cvs.height() * 0.1), em, 0, 2 * Math.PI);
+                cctx.fill();
+                
+                if (sel === CIRCLE)
+                    cctx.stroke();
+                
+                cctx.fillStyle = '#0f0';
+                cctx.beginPath();
+                cctx.moveTo(0|(cvs.width() / 2), 0|(cvs.height() * 0.1 - em));
+                cctx.lineTo(0|(cvs.width() / 2 - 2 * em / sqrt3), 0|(cvs.height() * 0.1 + em * 2 / 3));
+                cctx.lineTo(0|(cvs.width() / 2 + 2 * em / sqrt3), 0|(cvs.height() * 0.1 + em * 2 / 3));
+                cctx.closePath();
+                cctx.fill();
+                
+                if (sel === TRIANGLE)
+                    cctx.stroke();
+                
+                cctx.fillStyle = '#00f';
+                cctx.beginPath();
+                cctx.rect(0|(cvs.width() / 2 + 2 * em), 0|(cvs.height() * 0.1 - em), 2*em, 2*em);
+                cctx.fill();
+                
+                if (sel === SQUARE)
+                    cctx.stroke();
+                
+                cctx.strokeStyle = 'black';
+                cctx.lineWidth = 3;
+                cctx.beginPath();
+                cctx.moveTo(0|(cvs.width() * 0.05), 0|(cvs.height() * 0.2));
+                cctx.lineTo(0|(cvs.width() * 0.05), 0|(cvs.height() * 0.95));
+                cctx.lineTo(0|(cvs.width() * 0.95), 0|(cvs.height() * 0.95));
+                cctx.stroke();
+                
+                nodes.forEach(function(node) {
+                    node.draw();
+                });
+            }
+            
+            //onerror = function() {alert(JSON.stringify(Array.from(arguments)))};
+        </script>
+    </head>
+    <body>
+        <p>Please enable JavaScript to view this site.</p>
+        <div id="em"></div>
+        <div id="selected_data"></div>
+        <audio>
+            <source src="sounds/click1.wav" type="audio/wav">
+        </audio>
+    </body>
+</html>
